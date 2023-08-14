@@ -1,56 +1,61 @@
-Para montar esse projeto foi necessário
+# Instruções para Montar o Projeto
 
-Criar um arquivo `main.py` contendo a estrutura da rota a ser direcionada para o nosso index.html que contem o currículo.  
+## 1. Configurando o Ambiente
+- **Criação do Arquivo Principal**:
+  - Crie um arquivo chamado `main.py`. Este arquivo deve conter a estrutura da rota que direciona para o `index.html`, onde está o currículo.
 
-Acionar o server por meio do comando: 
+- **Iniciando o Servidor**:
+  \`\`\`bash
+  python -m uvicorn main:app --reload
+  \`\`\`
 
-    `python -m uvicorn main:app --reload`
+## 2. Configuração do Container Docker
 
-Construir o Container
+- **Criação do Dockerfile**:
+  - No diretório raiz do projeto, crie um arquivo chamado `Dockerfile`. Este arquivo deve ter as seguintes instruções:
+    \`\`\`Dockerfile
+    # imagem base
+    FROM python:3.11
 
-Crie um arquivo `Dockerfile` na raiz do seu projeto contendo as instruções para construir o seu container.
-
-   ```Dockerfile
-   # imagem base
-        FROM python:3.11
     # diretório da imagem que vamos trabalhar
-        WORKDIR /code
+    WORKDIR /code
 
     # definição dos requirements 
-        COPY ./requirements.txt /code/requirements.txt
+    COPY ./requirements.txt /code/requirements.txt
+    RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
-        RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
-    #
-        COPY . /code
+    # copiando conteúdo para o diretório /code da imagem
+    COPY . /code
 
-    #Definição de acesso ao server
-        CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]```
+    # definição de acesso ao server
+    CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
+    \`\`\`
+  - Note: Foi necessário acrescentar mais dependências no `requirements.txt`.
 
-(Foi necessário acrescentar mais dependencias no requirements)
+- **Construção (Build) do Docker Image**:
+  \`\`\`bash
+  docker build -t nota11:latest .
+  \`\`\`
 
-Então precisa fazer o build
+## 3. Docker Hub
 
-    ```docker build -t nota11:latest```
+- **Criação de Repositório**:
+  - No Docker Hub, crie um repositório público para armazenar o container.
 
-Criar um Repositório no Docker Hub
-No Docker Hub foi criado um repositório pulico onde posteriormente foi armazenado nosso container. 
-
-Fazer o Push para o Docker Hub
-O container foi setado com a tag com o nome do repositório no Docker Hub:
-
-```
-    docker tag vzeferino/teste-aula-zefe:latest
-```
-
-Em seguida foi feito o push do do container para o Docker Hub:
-
-```
+- **Tag e Push**:
+  - Adicione uma tag ao seu container com o nome do seu repositório no Docker Hub:
+    \`\`\`bash
+    docker tag nota11:latest vzeferino/teste-aula-zefe:latest
+    \`\`\`
+  - Faça o push do seu container para o Docker Hub:
+    \`\`\`bash
     docker push vzeferino/teste-aula-zefe:latest
-```
+    \`\`\`
 
-Usar o Container do Docker Hub
-Enfim é possível executar o container em qualquer máquina que tenha o Docker instalado:
+## 4. Utilizando o Container
 
-```
-docker run -p 4000:80 vzeferino/teste-aula-zefe:latest
-```
+- **Execução**:
+  - Agora, você pode executar o container em qualquer máquina que possua o Docker instalado:
+    \`\`\`bash
+    docker run -p 4000:80 vzeferino/teste-aula-zefe:latest
+    \`\`\`
